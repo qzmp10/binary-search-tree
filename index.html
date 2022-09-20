@@ -47,8 +47,98 @@
 
         }
 
+        insert(value, node = this.root) {
+
+            if(node == null) {
+                node = value;
+            }
+
+            if(value > node.data && node.right != null) {
+                this.insert(value, node.right)
+            }
+
+            if(value < node.data && node.left != null) {
+                this.insert(value, node.left)
+            }
+
+            if(value < node.data && node.left == null) {
+                node.left = new Node(value);
+                return;
+            }
+
+            if(value > node.data && node.right == null) {
+                node.right = new Node(value);
+                return;
+            }
+
+            return node;
+
+        }
+
+        delete(value, node = this.root) {
+
+        }
+
+        find(value, node = this.root) {
+
+            if(value == node.data) {
+                return node;
+            }
+
+            if (value > node.data) {
+                return this.find(value, node.right)
+            } 
+            if (value < node.data) {
+                return this.find(value, node.left);
+            }
+            
+        }
+
+        levelOrder(node = this.root) {
+            let array = [];
+            let queue = [node];
+
+
+            while(queue != []) {
+
+                if(node == null) {
+                    return array;
+                }
+
+                if(node.left == null && node.right != null) {
+                    queue.push(node.right);
+                    array.push(queue[0].data);
+                    queue.splice(0, 1);
+                    node = queue[0];
+                    continue;
+                    
+                } 
+                else if (node.right == null && node.left != null) {
+                    queue.push(node.left);
+                    array.push(queue[0].data);
+                    queue.splice(0, 1);
+                    node = queue[0];
+                    continue;
+                } 
+                else if (node.right == null && node.right == null) {
+                    array.push(queue[0].data);
+                    queue.splice(0, 1);
+                    node = queue[0];
+                    continue;
+                }
+
+                queue.push(node.left);
+                queue.push(node.right);
+                array.push(queue[0].data);
+                queue.splice(0, 1);
+                node = queue[0];
+
+            } 
+
+        }
 
     }
+
 
 
 
