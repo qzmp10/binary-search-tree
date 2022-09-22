@@ -22,6 +22,7 @@
     class Tree {
         constructor(array) {
 
+            //why use mergeSort when you can array.sort()? ;)
             this.array = array.sort((a, b) => {
             if (a < b) {
                 return -1;
@@ -52,20 +53,16 @@
             if(node == null) {
                 node = value;
             }
-
             if(value > node.data && node.right != null) {
                 this.insert(value, node.right)
             }
-
             if(value < node.data && node.left != null) {
                 this.insert(value, node.left)
             }
-
             if(value < node.data && node.left == null) {
                 node.left = new Node(value);
                 return;
             }
-
             if(value > node.data && node.right == null) {
                 node.right = new Node(value);
                 return;
@@ -75,7 +72,95 @@
 
         }
 
-        delete(value, node = this.root) {
+        delete(value) {
+            
+            let node = this.root;
+            let previousNode = null;
+
+            //get to the node we want to delete
+            while(value != node.data) {
+
+                if(value > node.data) {
+                    previousNode = node;
+                    node = node.right;
+                } 
+                if(value < node.data) {
+                    previousNode = node
+                    node = node.left
+                }
+
+            } 
+
+            //if node has 2 children
+            if(node.right != null && node.left != null) {
+
+                let originNode = node; //node we are deleting
+                previousNode = node;
+                node = node.left;
+
+                while(node.right != null) {
+
+                    previousNode = node;
+                    node = node.right
+                    
+                } 
+                originNode.data = node.data;
+
+                //in this case to prevent error if max value in left subtree is direct child
+                if(originNode.data > previousNode.data) {
+                    previousNode.right = null;
+                    //since max value of left subtree != direct child of originNode
+                    //we can delete the right child of the previousNode
+                } 
+                else {
+                    previousNode.left = null;
+                    //since direct child is max value in left subtree, you dont delete
+                    //right child of previousNode since previousNode is direct parent
+                }
+
+                return originNode;
+                
+            }
+
+            
+            //if node has 1 child
+            if(node.right != null && node.left == null){
+
+                if(previousNode.right.data == node.data) {
+                    previousNode.right = node.right;
+                    node = null;
+                    return previousNode;
+                } 
+                else if (previousNode.left.data == node.data) {
+                    previousNode.left = node.right;
+                    node = null;
+                    return previousNode;
+                }
+
+            } 
+            else if (node.left != null && node.right == null) {
+
+                if(previousNode.left.data == node.data) {
+                    previousNode.left = node.left;
+                    node = null;
+                    return previousNode;
+                } 
+                else if (previousNode.right.data == node.data) {
+                    previousNode.right = node.left; 
+                    node = null;
+                    return previousNode;
+                }
+
+            }
+
+            //if node is a leaf (no child)
+            if(value > previousNode.data) {
+                previousNode.right = null;
+                return previousNode;
+            } else if (value < previousNode.data) {
+                previousNode.left = null;
+                return previousNode;
+            }
 
         }
 
@@ -95,6 +180,7 @@
         }
 
         levelOrder(node = this.root) {
+            
             let array = [];
             let queue = [node];
 
@@ -137,9 +223,106 @@
 
         }
 
+        //print node, travel left, then travel right
+        preOrder(node = this.root, array = []) {
+            if(node == null) {
+                return;
+            }
+
+            array.push(node.data);
+            this.preOrder(node.left, array);
+            this.preOrder(node.right, array);
+
+            return array;
+        }
+
+        //travel left, print node, travel right
+        inOrder(node = this.root, array = []) {
+            if(node == null) {
+                return;
+            }
+
+            this.inOrder(node.left, array);
+            array.push(node.data);
+            this.inOrder(node.right, array);
+
+            return array;
+        }
+
+        //travel left, travel right, print node
+        postOrder(node = this.root, array = []) {
+            if(node == null) {
+                return;
+            }
+            
+            this.postOrder(node.left, array);
+            this.postOrder(node.right, array);
+            array.push(node.data);
+
+            return array;
+        }
+
+
+        height(node) {
+
+            if(node == null) {
+                //example if a node has 1 child and a null node,
+                //the child will return 0 to the node, null will return -1 to the node
+                //Math.max will take 0 (biggest integer) and add + 1 to it which will return 
+                //the height of the node 
+                return -1;
+            }
+
+ 
+            let leftHeight = this.height(node.left);
+            let rightHeight = this.height(node.right);
+
+            //returns largest integer between leftHeight & rightHeight
+            return Math.max(leftHeight, rightHeight) + 1;
+        }
+
+        depth(value, node = this.root) {
+
+            //in this case, reiteration was way easier than recursion
+            let depth = 0;
+            while(value != node.data) {
+                if(value > node.data) {
+                    node = node.right;
+                    depth += 1;
+                } else if (value < node.data) {
+                    node = node.left;
+                    depth += 1;
+                }
+            } return depth;
+        } 
+
+        isBalanced(node = this.root) {
+            let leftBalanced = this.height(node.left);
+            let rightBalanced = this.height(node.right);
+
+            if((leftBalanced - rightBalanced) < 0) {
+                if((rightBalanced - leftBalanced) > 1) {
+                    return false;
+                } else {
+                    return true;
+                }
+            } else if (leftBalanced - rightBalanced > 1) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+
+        rebalance() {
+            if(this.isBalanced() == false) {
+                const balancedTree = new Tree(this.inOrder());
+                return balancedTree;
+            } else {
+                return this;
+            }
+        }
+
     }
-
-
 
 
 </script>
